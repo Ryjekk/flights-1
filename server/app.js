@@ -18,7 +18,9 @@ const getFlights = async () => {
 
     const airports = fileDataToArray(airportData).map((item) => ({
       airportID: item[0],
-      name: item[2],
+      airport: item[1],
+      city: item[2],
+      country: item[3],
       lat: item[6],
       long: item[7],
     }));
@@ -82,8 +84,51 @@ const getFlightsDistance = async () => {
   }
 };
 
+const getTenLongestFlights = async () => {
+  const flights = await getFlights();
+  const flightsDistance = await getFlightsDistance();
+
+  const tenLongestFlights = [];
+  flightsDistance
+    .filter((item, index) => index < 10)
+    .forEach((longFlight) => {
+      flights.forEach((item) => {
+        if (item.id === longFlight.flightId)
+          tenLongestFlights.push({ ...item, distance: longFlight.distance });
+      });
+    });
+
+  return tenLongestFlights;
+};
+
+const getTenShortestFlights = async () => {
+  const flights = await getFlights();
+  const flightsDistance = await getFlightsDistance();
+
+  const tenShortestFlights = [];
+  flightsDistance
+    .reverse()
+    .filter((item, index) => index < 10)
+    .forEach((longFlight) => {
+      flights.forEach((item) => {
+        if (item.id === longFlight.flightId)
+          tenShortestFlights.push({ ...item, distance: longFlight.distance });
+      });
+    });
+
+  return tenShortestFlights;
+};
+
 app.get('/api/flights', async (req, res) => {
   res.send(await getFlights());
+});
+
+app.get('/api/flights/longest', async (req, res) => {
+  res.send(await getTenLongestFlights());
+});
+
+app.get('/api/flights/shortest', async (req, res) => {
+  res.send(await getTenShortestFlights());
 });
 
 const port = process.env.PORT || 8080;
