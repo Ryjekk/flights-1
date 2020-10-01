@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 const fileDataToArray = require('./helper/fileDataToArray');
+const calculateDistance = require('./helper/calculateDistance');
 
 const url = {
   airport:
@@ -42,10 +43,40 @@ const getFlights = async () => {
           return (flight.destination = airport);
       });
 
+      flight.id = flights.length + 1;
+
       flights.push(flight);
     });
 
     return flights;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getFlightsDistance = async () => {
+  try {
+    const flights = await getFlights();
+
+    const flightsDistance = flights
+      .map((flight) => {
+        if (flight.source && flight.destination)
+          return {
+            flightId: flight.id,
+            distance: Math.ceil(
+              calculateDistance(
+                flight.source.lat,
+                flight.source.long,
+                flight.destination.lat,
+                flight.destination.long
+              )
+            ),
+          };
+      })
+      .filter((item) => item)
+      .sort((a, b) => a.distance - b.distance)
+      .reverse();
+    return flightsDistance;
   } catch (error) {
     console.log(error);
   }
