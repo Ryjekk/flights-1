@@ -2,7 +2,6 @@ const express = require('express');
 const axios = require('axios');
 const app = express();
 const fileDataToArray = require('./helper/fileDataToArray');
-const calculateDistance = require('./helper/calculateDistance');
 
 const url = {
   airport:
@@ -24,7 +23,7 @@ const getFlights = async () => {
     }));
 
     const routes = fileDataToArray(routesData).map((item) => ({
-      sAirportID: item[3],
+      sourceAirportID: item[3],
       destinationAirportID: item[5],
     }));
 
@@ -35,12 +34,13 @@ const getFlights = async () => {
 
       airports.forEach((airport) => {
         if (airport.airportID === route.sourceAirportID)
-          flight.source = { ...airport };
-        if (airport.airportID === route.destinationAirportID)
-          flight.destination = airport;
+          return (flight.source = airport);
       });
 
-      //   console.log(flight);
+      airports.forEach((airport) => {
+        if (airport.airportID === route.destinationAirportID)
+          return (flight.destination = airport);
+      });
 
       flights.push(flight);
     });
@@ -51,22 +51,8 @@ const getFlights = async () => {
   }
 };
 
-const getDistance = async () => {
-  const flights = await getFlights();
-  console.log(flights);
-  const routeDistances = flights.map(({ source: s, destination: d }) =>
-    calculateDistance(s.lat, s.long, d.lat, d.long)
-  );
-};
-
-getDistance();
-
 app.get('/api/flights', async (req, res) => {
   res.send(await getFlights());
-});
-
-app.get('/api/flights/longest', async (req, res) => {
-  res.send(await getDistance());
 });
 
 const port = process.env.PORT || 8080;
