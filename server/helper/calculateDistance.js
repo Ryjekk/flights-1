@@ -1,15 +1,18 @@
 module.exports = (lat1, lon1, lat2, lon2) => {
-  var R = 6371; // km
-  var dLat = toRad(lat2 - lat1);
-  var dLon = toRad(lon2 - lon1);
-  var lat1 = toRad(lat1);
-  var lat2 = toRad(lat2);
+  const R = 6371; // km
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const sourceLat = toRad(lat1);
+  const desLat = toRad(lat2);
 
-  var a =
+  const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  var d = R * c;
+    Math.sin(dLon / 2) *
+      Math.sin(dLon / 2) *
+      Math.cos(sourceLat) *
+      Math.cos(desLat);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const d = R * c;
   return d;
 };
 
